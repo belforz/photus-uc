@@ -1,0 +1,33 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+eggs/
+.eggs/
+*.egg-info/
+lib/
+lib64/
+parts/
+wheels/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Local SQLite database
+*.db
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+
+# Windows Zone.Identifier metadata files
+*:Zone.Identifier
