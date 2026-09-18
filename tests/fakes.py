@@ -8,9 +8,16 @@ compilarem; ajustar conforme a implementação real for definida.
 
 from __future__ import annotations
 
+from domain.application.interfaces.evaluation_batch_repository import (
+    EvaluationBatchRepository,
+)
 from domain.application.interfaces.password_hasher import PasswordHasher
+from domain.application.interfaces.photo_storage import PhotoStorage
+from domain.application.interfaces.photus_b_client import PhotusBClient, SemanticClassification
 from domain.application.interfaces.token_service import TokenService
 from domain.application.interfaces.usuario_repository import UsuarioRepository
+from domain.entities.evaluated_photo import EvaluatedPhoto
+from domain.entities.evaluation_batch import EvaluationBatch
 from domain.entities.usuario import Usuario
 
 
@@ -50,3 +57,53 @@ class FakeTokenService(TokenService):
 
     def decode(self, token: str) -> dict:
         return {"usuario_id": token.removeprefix("token::")}
+
+
+class FakeEvaluationBatchRepository(EvaluationBatchRepository):
+    def __init__(self) -> None:
+        self._batches: dict[str, EvaluationBatch] = {}
+        self._photos: dict[str, list[EvaluatedPhoto]] = {}
+
+    def create(self, batch: EvaluationBatch) -> EvaluationBatch:
+        self._batches[batch.id] = batch
+        self._photos.setdefault(batch.id, [])
+        return batch
+
+    def get_by_id(self, batch_id: str) -> EvaluationBatch | None:
+        return self._batches.get(batch_id)
+
+    def add_photos(self, photos: list[EvaluatedPhoto]) -> list[EvaluatedPhoto]:
+        for photo in photos:
+            self._photos.setdefault(photo.batch_id, []).append(photo)
+        return photos
+
+    def update_classification(self, batch: EvaluationBatch) -> EvaluationBatch:
+        self._batches[batch.id] = batch
+        return batch
+
+
+class FakePhotoStorage(PhotoStorage):
+    def __init__(self) -> None:
+        self.saved: list[tuple[str, str, bytes]] = []
+
+    def save(self, batch_id: str, file_name: str, content: bytes) -> str:
+        self.saved.append((batch_id, file_name, content))
+        return f"/fake/{batch_id}/{file_name}"
+
+
+class FakePhotusBClient(PhotusBClient):
+    """Fake configurável — devolve um resultado fixo ou levanta uma exceção fixa."""
+
+    def __init__(
+        self,
+        result: SemanticClassification | None = None,
+        error: Exception | None = None,
+    ) -> None:
+        self._result = result
+        self._error = error
+
+    def classify_text(self, text: str) -> SemanticClassification:
+        if self._error is not None:
+            raise self._error
+        assert self._result is not None
+        return self._result
