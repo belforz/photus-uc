@@ -24,6 +24,9 @@ ENV/
 # Local SQLite database
 *.db
 
+# Fotografias enviadas (Sprint 2 — armazenamento local em disco)
+/uploads/
+
 # IDEs and Editors
 .vscode/
 .idea/
