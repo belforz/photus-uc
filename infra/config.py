@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     jwt_secret: str = "change-me"
     jwt_expire_minutes: int = 60
 
+    photus_b_base_url: str = "http://localhost:8001"
+    photus_b_timeout_seconds: float = 15.0
+    uploads_dir: str = "uploads"
+
 
 @lru_cache
 def get_settings() -> Settings:
