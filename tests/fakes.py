@@ -1,10 +1,3 @@
-"""
-Fakes in-memory para os ports de Usuario, usados nos testes dos use
-cases sem precisar de banco/bcrypt/JWT reais.
-
-Esqueleto — comportamento mínimo o suficiente para os testes
-compilarem; ajustar conforme a implementação real for definida.
-"""
 
 from __future__ import annotations
 
@@ -12,6 +5,11 @@ from domain.application.interfaces.evaluation_batch_repository import (
     EvaluationBatchRepository,
 )
 from domain.application.interfaces.password_hasher import PasswordHasher
+from domain.application.interfaces.photo_evaluation_pipeline import (
+    PhotoEvaluationPipeline,
+    PhotoToEvaluate,
+    PipelineOutcome,
+)
 from domain.application.interfaces.photo_storage import PhotoStorage
 from domain.application.interfaces.photus_b_client import PhotusBClient, SemanticClassification
 from domain.application.interfaces.token_service import TokenService
@@ -42,7 +40,6 @@ class FakeUsuarioRepository(UsuarioRepository):
 
 
 class FakePasswordHasher(PasswordHasher):
-    """Fake burro — NÃO usar em produção. hash() é identidade prefixada."""
 
     def hash(self, senha_plana: str) -> str:
         return f"hashed::{senha_plana}"
@@ -81,6 +78,42 @@ class FakeEvaluationBatchRepository(EvaluationBatchRepository):
         self._batches[batch.id] = batch
         return batch
 
+    def list_photos(self, batch_id: str) -> list[EvaluatedPhoto]:
+        return list(self._photos.get(batch_id, []))
+
+    def update_photo_evaluations(self, photos: list[EvaluatedPhoto]) -> list[EvaluatedPhoto]:
+        for photo in photos:
+            lote = self._photos.setdefault(photo.batch_id, [])
+            for i, existing in enumerate(lote):
+                if existing.id == photo.id:
+                    lote[i] = photo
+        return photos
+
+    def update_status(self, batch: EvaluationBatch) -> EvaluationBatch:
+        self._batches[batch.id] = batch
+        return batch
+
+
+class FakePhotoEvaluationPipeline(PhotoEvaluationPipeline):
+
+    def __init__(
+        self,
+        outcome: PipelineOutcome | None = None,
+        error: Exception | None = None,
+    ) -> None:
+        self._outcome = outcome
+        self._error = error
+        self.calls: list[tuple[str, str, list[PhotoToEvaluate]]] = []
+
+    def run(
+        self, batch_id: str, anchor: str, photos: list[PhotoToEvaluate]
+    ) -> PipelineOutcome:
+        self.calls.append((batch_id, anchor, photos))
+        if self._error is not None:
+            raise self._error
+        assert self._outcome is not None
+        return self._outcome
+
 
 class FakePhotoStorage(PhotoStorage):
     def __init__(self) -> None:
@@ -92,7 +125,6 @@ class FakePhotoStorage(PhotoStorage):
 
 
 class FakePhotusBClient(PhotusBClient):
-    """Fake configurável — devolve um resultado fixo ou levanta uma exceção fixa."""
 
     def __init__(
         self,

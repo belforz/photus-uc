@@ -1,14 +1,61 @@
+# Stack do backend Photus: API (photus-uc) + Postgres + Photus B + photus-engine.
+#
+# photus-b e photus-engine vem de IMAGENS (registry), nao de build: o photus-uc as consome como
+# dependencias de runtime, por HTTP, pela rede interna do compose (nenhuma porta publicada).
+#
+#   docker compose pull && docker compose up -d                                      # imagens do registry
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build   # build local
+#
+# Variaveis (todas opcionais; podem ir no .env desta pasta):
+#   PHOTUS_REGISTRY / PHOTUS_TAG        usuario do Docker Hub (default belforzz) e tag (default latest;
+#                                       para travar uma versao: PHOTUS_TAG=v0.0.0)
+#   MISTRAL_API_KEY, HF_API_KEY, LLM_*  segredos do Photus B (sem MISTRAL_API_KEY o fallback LLM fica desligado)
+#   POSTGRES_*                          credenciais do banco
+name: photus
+
 services:
   app-web:
     build: .
+    image: ${PHOTUS_REGISTRY:-belforzz}/photus-uc:${PHOTUS_TAG:-latest}
     command: sh -c "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"
     ports:
       - "8000:8000"
     env_file:
-      - .env
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-photus}:${POSTGRES_PASSWORD:-photus}@db:5432/${POSTGRES_DB:-photus}
+      PHOTUS_B_BASE_URL: http://photus-b:8000
+      PIPELINE_BACKEND: http
+      PHOTUS_ENGINE_BASE_URL: http://photus-engine:8000
+    volumes:
+      - photus_uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy
+      photus-b:
+        condition: service_healthy
+      photus-engine:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Roteamento semantico (UC05). Container proprio: carrega um transformer na RAM.
+  photus-b:
+    image: ${PHOTUS_REGISTRY:-belforzz}/photus-b:${PHOTUS_TAG:-latest}
+    environment:
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
+      HF_API_KEY: ${HF_API_KEY:-}
+      LLM_VALID_MODELS: ${LLM_VALID_MODELS:-["mistral/ministral-14b-latest"]}
+      LLM_MODEL_CURRENT_NAME: ${LLM_MODEL_CURRENT_NAME:-mistral/ministral-14b-latest}
+      OMP_NUM_THREADS: ${PHOTUS_B_THREADS:-2}
+    # Medido em regime: ~1,8 GiB (torch CPU + MiniLM + spaCy/pandas importados). 2g seria no limite.
+    mem_limit: ${PHOTUS_B_MEM_LIMIT:-3g}
+    restart: unless-stopped
+
+  # Pre-processador + Photus A (UC06). Um lote por vez: NAO escale esta replica.
+  photus-engine:
+    image: ${PHOTUS_REGISTRY:-belforzz}/photus-engine:${PHOTUS_TAG:-latest}
+    mem_limit: ${PHOTUS_ENGINE_MEM_LIMIT:-2g}
     restart: unless-stopped
 
   db:
@@ -30,3 +77,4 @@ services:
 
 volumes:
   photus_db_data:
+  photus_uploads:

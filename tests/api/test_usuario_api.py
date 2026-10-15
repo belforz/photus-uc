@@ -1,6 +1,3 @@
-"""
-Testes de integração HTTP para UC01-UC03, cobrindo a matriz TC-S1-*.
-"""
 
 from __future__ import annotations
 

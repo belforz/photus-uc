@@ -7,3 +7,9 @@ __pycache__
 tests
 .env
 README.md
+
+uploads
+photus.db
+*.db
+docs
+docker-compose*.yml

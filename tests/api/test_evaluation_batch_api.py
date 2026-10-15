@@ -1,9 +1,3 @@
-"""
-Testes de integração HTTP para UC04-UC05, cobrindo a matriz TC-S2-*.
-
-O Photus B é substituído por um fake via dependency override — estes
-testes não fazem chamadas de rede reais.
-"""
 
 from __future__ import annotations
 

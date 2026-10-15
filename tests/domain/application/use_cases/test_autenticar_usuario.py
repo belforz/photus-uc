@@ -1,6 +1,3 @@
-"""
-Testes de UC02 — Autenticar-se.
-"""
 
 from __future__ import annotations
 

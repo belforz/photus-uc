@@ -8,6 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from api.deps import get_evaluation_job
 from infra.db.base import Base
 from infra.db.session import get_session
 from main import app
@@ -34,7 +35,14 @@ def client() -> Iterator[TestClient]:
     # engine "real" (sqlite:///./photus.db) desnecessariamente durante os
     # testes, já que as tabelas do teste são criadas acima no engine em memória.
     app.dependency_overrides[get_session] = _override_get_session
+    # UC06 roda em background após o POST /batches; por padrão os testes NÃO
+    # devem acionar os binários C++ reais nem tocar o banco real. Os testes do
+    # UC06 sobrescrevem este job com um SessionEvaluationJob + pipeline fake.
+    app.dependency_overrides[get_evaluation_job] = lambda: (lambda batch_id: None)
     test_client = TestClient(app)
+    # Exposto para testes que montam um SessionEvaluationJob sobre o MESMO
+    # SQLite em memória da request.
+    test_client.testing_session_factory = testing_session_local  # type: ignore[attr-defined]
     yield test_client
     app.dependency_overrides.clear()
     Base.metadata.drop_all(bind=engine)

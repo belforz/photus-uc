@@ -1,6 +1,3 @@
-"""
-Testes de UC01 — Cadastrar-se.
-"""
 
 from __future__ import annotations
 

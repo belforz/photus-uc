@@ -1,8 +1,3 @@
-"""
-Testes de UC05 — Classificar Âncora Semântica (Photus B).
-
-Cobre a matriz TC-S2-04 a TC-S2-09 (parte de roteamento).
-"""
 
 from __future__ import annotations
 

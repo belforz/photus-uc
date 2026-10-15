@@ -24,6 +24,9 @@ WORKDIR /app
 
 COPY --from=builder --chown=app:app /app /app
 
+# Volume nomeado de uploads herda dono/permissao deste diretorio (o usuario `app` precisa gravar).
+RUN mkdir -p /app/uploads && chown app:app /app/uploads
+
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1

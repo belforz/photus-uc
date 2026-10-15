@@ -1,0 +1,11 @@
+# Override para construir localmente as imagens dos repos irmaos (em vez de puxar do registry):
+#
+#   (cd ../photus-engine && ./scripts/prepare_context.sh)   # monta o contexto do engine (inclui o modelo RF)
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
+services:
+  photus-b:
+    build:
+      context: ../photus-b
+  photus-engine:
+    build:
+      context: ../photus-engine

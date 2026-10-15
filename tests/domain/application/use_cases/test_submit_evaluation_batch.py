@@ -1,8 +1,3 @@
-"""
-Testes de UC04 — Enviar Descrição + Fotografias.
-
-Cobre a matriz TC-S2-01 a TC-S2-03.
-"""
 
 from __future__ import annotations
 

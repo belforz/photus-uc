@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from api.routers.evaluation_batch import router as evaluation_batch_router
 from api.routers.usuario import router as usuario_router
 from domain.application.exceptions.evaluation_batch_exceptions import (
+    BatchNotFoundError,
     NoPhotosAttachedError,
     PhotoLimitExceededError,
 )
@@ -48,6 +49,11 @@ def _photo_limit_exceeded(request: Request, exc: PhotoLimitExceededError) -> JSO
         status_code=400,
         content={"detail": f"Limite de {exc.limit} fotografias excedido"},
     )
+
+
+@app.exception_handler(BatchNotFoundError)
+def _batch_not_found(request: Request, exc: BatchNotFoundError) -> JSONResponse:
+    return JSONResponse(status_code=404, content={"detail": "Lote não encontrado"})
 
 
 @app.get("/health")

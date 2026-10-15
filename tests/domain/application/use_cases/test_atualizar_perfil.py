@@ -1,6 +1,3 @@
-"""
-Testes de UC03 — Atualizar perfil.
-"""
 
 from __future__ import annotations
 
