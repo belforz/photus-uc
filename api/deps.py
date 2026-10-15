@@ -7,15 +7,20 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from domain.application.exceptions.token_exceptions import TokenInvalidoError
+from domain.application.interfaces.photo_evaluation_pipeline import PhotoEvaluationPipeline
 from domain.application.use_cases.atualizar_perfil import AtualizarPerfil
 from domain.application.use_cases.autenticar_usuario import AutenticarUsuario
 from domain.application.use_cases.cadastrar_usuario import CadastrarUsuario
 from domain.application.use_cases.classify_semantic_anchor import ClassifySemanticAnchor
+from domain.application.use_cases.get_evaluation_batch import GetEvaluationBatch
 from domain.application.use_cases.submit_evaluation_batch import SubmitEvaluationBatch
 from infra.clients.http_photus_b_client import HttpPhotusBClient
-from infra.config import get_settings
+from infra.config import Settings, get_settings
 from infra.db.evaluation_batch_repository import SQLAlchemyEvaluationBatchRepository
-from infra.db.session import get_session
+from infra.db.session import SessionLocal, get_session
+from infra.jobs.evaluation_job import EvaluationJob, SessionEvaluationJob
+from infra.pipeline.http_engine_pipeline import HttpPhotoEvaluationPipeline
+from infra.pipeline.local_cpp_pipeline import LocalCppPipeline
 from infra.db.usuario_repository import SQLAlchemyUsuarioRepository
 from infra.security.bcrypt_password_hasher import BcryptPasswordHasher
 from infra.security.jwt_token_service import JwtTokenService
@@ -101,6 +106,32 @@ def get_submit_evaluation_batch_use_case(
     ],
 ) -> SubmitEvaluationBatch:
     return SubmitEvaluationBatch(repo, storage, classify_semantic_anchor)
+
+
+def get_get_evaluation_batch_use_case(
+    repo: Annotated[
+        SQLAlchemyEvaluationBatchRepository, Depends(get_evaluation_batch_repository)
+    ],
+) -> GetEvaluationBatch:
+    return GetEvaluationBatch(repo)
+
+
+def get_evaluation_job() -> EvaluationJob:
+    return SessionEvaluationJob(SessionLocal, build_evaluation_pipeline(get_settings()))
+
+
+def build_evaluation_pipeline(settings: Settings) -> PhotoEvaluationPipeline:
+    if settings.pipeline_backend == "http":
+        return HttpPhotoEvaluationPipeline(
+            base_url=settings.photus_engine_base_url,
+            timeout_seconds=settings.photus_engine_timeout_seconds,
+        )
+    return LocalCppPipeline(
+        preprocessor_root=settings.preprocessor_root,
+        photus_a_root=settings.photus_a_root,
+        staging_dir=settings.resolved_pipeline_staging_dir,
+        timeout_seconds=settings.pipeline_timeout_seconds,
+    )
 
 
 def get_usuario_id_atual(
