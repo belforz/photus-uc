@@ -1,10 +1,3 @@
-"""seed usuarios de teste
-
-Revision ID: 8fd1653c48e2
-Revises: 68cfdc5f37c0
-Create Date: 2026-09-05 19:44:11.303184
-
-"""
 import uuid
 from datetime import UTC, datetime
 from typing import Sequence, Union
@@ -44,11 +37,6 @@ def _hash(senha_plana: str) -> str:
 
 
 def upgrade() -> None:
-    """Seed dos usuarios de teste (RF01) para ambiente de dev/QA.
-
-    Idempotente: pula quem ja existir (bancos de dev que ja tiveram
-    cadastro manual via API nao devem quebrar a migracao).
-    """
     bind = op.get_bind()
     emails = [usuario["email"] for usuario in USUARIOS_SEED]
     ja_existentes = {
@@ -77,11 +65,4 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    """No-op de proposito.
-
-    upgrade() e idempotente e pula e-mails ja existentes, entao nao da pra
-    saber aqui se a linha foi criada por esta migracao ou ja existia antes
-    (ex.: cadastro manual via API). Deletar por e-mail e destrutivo demais:
-    ja apagou usuarios de teste legitimos numa vez que essa migracao foi
-    revertida. Se precisar remover os seeds manualmente, delete por id.
-    """
+    pass
