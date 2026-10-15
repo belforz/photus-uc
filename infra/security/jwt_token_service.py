@@ -1,6 +1,3 @@
-"""
-Adapter de TokenService usando PyJWT (UC02, RNF09).
-"""
 
 from __future__ import annotations
 

@@ -1,12 +1,3 @@
-"""
-Tradução/validação de slug de âncora semântica (RF16, UC05/A2).
-
-O Photus B já retorna `category_code` normalizado em slug, mas o
-vocabulário de âncoras conhecidas (as 10 estéticas + `tecnico`) é
-definido aqui, do lado do consumidor — se o Photus B um dia
-adicionar/renomear uma âncora sem o photus-uc saber, degradamos para
-`GLOBAL_FALLBACK_ANCHOR` em vez de quebrar o fluxo do usuário.
-"""
 
 from __future__ import annotations
 

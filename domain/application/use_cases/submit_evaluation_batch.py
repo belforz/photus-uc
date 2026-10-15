@@ -1,21 +1,3 @@
-"""
-UC04 — Enviar Descrição + Fotografias.
-
-Ator: Usuário Leigo / Fotógrafo (autenticado).
-RFs relacionados: RF03, RF07, RF09.
-
-Pré-condição: usuário autenticado (usuario_id vem de um token válido,
-já decodificado antes deste use case ser chamado).
-Fluxo principal:
-    1. Usuário informa a descrição textual da estética desejada.
-    2. Anexa até 20 fotografias.
-    3. Sistema cria um registro em EvaluationBatch com status
-       `em_processamento` e persiste as fotografias anexadas.
-    4. Sistema aciona UC05 (ClassifySemanticAnchor) — relação
-       <<include>>.
-Fluxo alternativo A1: mais de 20 fotografias -> PhotoLimitExceededError.
-Fluxo alternativo A2: nenhuma fotografia anexada -> NoPhotosAttachedError.
-"""
 
 from __future__ import annotations
 

@@ -67,6 +67,34 @@ class SQLAlchemyEvaluationBatchRepository(EvaluationBatchRepository):
         self._session.refresh(model)
         return _to_entity(model)
 
+    def list_photos(self, batch_id: str) -> list[EvaluatedPhoto]:
+        models = (
+            self._session.query(EvaluatedPhotoModel)
+            .filter(EvaluatedPhotoModel.batch_id == batch_id)
+            .order_by(EvaluatedPhotoModel.created_at, EvaluatedPhotoModel.file_name)
+            .all()
+        )
+        return [_photo_to_entity(model) for model in models]
+
+    def update_photo_evaluations(self, photos: list[EvaluatedPhoto]) -> list[EvaluatedPhoto]:
+        updated: list[EvaluatedPhoto] = []
+        for photo in photos:
+            model = self._session.get(EvaluatedPhotoModel, photo.id)
+            model.evaluation_status = photo.evaluation_status.value
+            model.final_score = photo.final_score
+            model.metrics_json = photo.metrics_json
+            model.is_top3 = photo.is_top3
+            updated.append(_photo_to_entity(model))
+        self._session.commit()
+        return updated
+
+    def update_status(self, batch: EvaluationBatch) -> EvaluationBatch:
+        model = self._session.get(EvaluationBatchModel, batch.id)
+        model.status = batch.status.value
+        self._session.commit()
+        self._session.refresh(model)
+        return _to_entity(model)
+
 
 def _to_entity(model: EvaluationBatchModel) -> EvaluationBatch:
     return EvaluationBatch(

@@ -1,24 +1,3 @@
-"""
-UC05 — Classificar Âncora Semântica (Photus B).
-
-Ator: Sistema (acionado internamente por UC04 — relação <<include>>).
-RFs relacionados: RF04, RF05, RF06, RF16, RNF01, RNF02, RNF06.
-
-Pré-condição: EvaluationBatch já criado com input_text preenchido.
-Fluxo principal:
-    1. Envia o input_text para a API do Photus B.
-    2. Deriva a rota de classificação a partir do resultado:
-       technical=True -> tecnico; used_fallback=True -> fallback;
-       caso contrário -> fast_track (RF04/RF05/RF06).
-    3. Normaliza a âncora retornada contra o vocabulário conhecido
-       (RF16).
-    4. Persiste classified_anchor/classification_route no lote.
-Fluxo alternativo A1: Photus B indisponível/timeout -> PhotusBUnavailableError
-    é capturada aqui, o lote é marcado com status `erro` e o fluxo
-    segue sem interromper o usuário (RNF06) — não repropaga a exceção.
-Fluxo alternativo A2: âncora não reconhecida -> anchor_translator
-    degrada para o fallback global sem interromper o fluxo (RF16).
-"""
 
 from __future__ import annotations
 

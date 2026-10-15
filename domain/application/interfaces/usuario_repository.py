@@ -1,10 +1,3 @@
-"""
-Port de persistência para Usuario.
-
-A implementação concreta (ex.: SQLAlchemy, asyncpg, etc.) vive em
-infra/ e é injetada nos use cases — os use cases nunca importam
-uma implementação concreta diretamente.
-"""
 
 from __future__ import annotations
 

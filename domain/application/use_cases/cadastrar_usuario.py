@@ -1,18 +1,3 @@
-"""
-UC01 — Cadastrar-se.
-
-Ator: Usuário Leigo / Fotógrafo (não autenticado).
-RFs relacionados: RF01.
-
-Pré-condição: e-mail informado não pode já existir na base.
-Fluxo principal:
-    1. Usuário informa nome, e-mail, senha e tipo de usuário.
-    2. Sistema valida unicidade do e-mail.
-    3. Sistema faz hash da senha (nunca persiste texto plano).
-    4. Sistema persiste o novo usuário.
-    5. Sistema retorna os dados públicos do usuário criado.
-Fluxo alternativo: e-mail já cadastrado → EmailJaCadastradoError.
-"""
 
 from __future__ import annotations
 

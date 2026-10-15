@@ -1,10 +1,3 @@
-"""
-Entidade de domínio: EvaluationBatch (lote de avaliação).
-
-Cobre RF03/RF04/RF05/RF06/RF09/RF16 da Proposta Técnica (Sprint 2).
-Persistência real fica a cargo do adapter de repositório (infra/), não
-desta classe.
-"""
 
 from __future__ import annotations
 
@@ -15,6 +8,7 @@ from enum import Enum
 
 class BatchStatus(str, Enum):
     PROCESSING = "em_processamento"
+    COMPLETED = "concluido"  # UC06 — todas as fotos tiveram o engine executado
     ERROR = "erro"
 
 

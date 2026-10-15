@@ -1,20 +1,3 @@
-"""
-UC02 — Autenticar-se.
-
-Ator: Usuário Leigo / Fotógrafo (não autenticado).
-RFs relacionados: RF01.
-
-Pré-condição: usuário já cadastrado (UC01).
-Fluxo principal:
-    1. Usuário informa e-mail e senha.
-    2. Sistema busca usuário pelo e-mail.
-    3. Sistema verifica a senha contra o hash armazenado.
-    4. Sistema emite um token de sessão (JWT).
-    5. Sistema retorna o token e os dados públicos do usuário.
-Fluxo alternativo: e-mail não encontrado OU senha incorreta →
-    CredenciaisInvalidasError (mensagem única, sem distinguir qual dos
-    dois casos ocorreu — evita enumeração de contas).
-"""
 
 from __future__ import annotations
 

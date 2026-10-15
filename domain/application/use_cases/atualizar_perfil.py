@@ -1,23 +1,3 @@
-"""
-UC03 — Atualizar perfil.
-
-Ator: Usuário Leigo / Fotógrafo (autenticado).
-RFs relacionados: RF02.
-
-Pré-condição: usuário autenticado (usuario_id vem de um token válido,
-já decodificado antes deste use case ser chamado — decodificação de
-token não é responsabilidade deste use case).
-Fluxo principal:
-    1. Usuário informa os campos que deseja atualizar (nome/email/senha,
-       todos opcionais — atualização parcial).
-    2. Sistema busca o usuário pelo id.
-    3. Sistema aplica as mudanças informadas (se senha, re-hash).
-    4. Sistema persiste a atualização.
-    5. Sistema retorna os dados públicos atualizados.
-Fluxo alternativo: usuario_id não encontrado → UsuarioNaoEncontradoError.
-Fluxo alternativo: novo e-mail já pertence a outro usuário →
-    EmailJaCadastradoError (reaproveitada de UC01).
-"""
 
 from __future__ import annotations
 

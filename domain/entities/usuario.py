@@ -1,10 +1,3 @@
-"""
-Entidade de domínio: Usuario.
-
-Cobre RF01 (cadastro/autenticação) e RF02 (atualização de perfil) da
-Proposta Técnica. Persistência real fica a cargo do adapter de
-repositório (infra/), não desta classe.
-"""
 
 from __future__ import annotations
 

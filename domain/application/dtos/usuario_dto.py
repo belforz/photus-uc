@@ -1,10 +1,3 @@
-"""
-DTOs de request/response para os use cases de Usuario (UC01–UC03).
-
-São contratos de entrada/saída — não têm comportamento. Mantêm os use
-cases desacoplados do formato exato de request usado na camada de API
-(FastAPI/Pydantic, se for essa a escolha do front de acesso).
-"""
 
 from __future__ import annotations
 

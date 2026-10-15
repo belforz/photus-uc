@@ -1,10 +1,3 @@
-"""
-Entidade de domínio: EvaluatedPhoto (foto avaliada).
-
-Cobre RF07/RF09 (Sprint 2 — anexo das fotografias do lote). Os campos
-de avaliação técnica (final_score, metrics_json, is_top3) só são
-preenchidos pelo UC06 (Sprint 3) — aqui nascem vazios/pendentes.
-"""
 
 from __future__ import annotations
 
@@ -16,7 +9,13 @@ from enum import Enum
 class PhotoEvaluationStatus(str, Enum):
     PENDING = "pendente"
     APPROVED = "aprovado"
+    UNDEFINED = "indefinido"
     REJECTED = "reprovado"
+    HUMAN_REVIEW = "revisao_humana"
+    # Extensão além dos 4 status da spec (Aprovado/Indefinido/Reprovado/Revisão
+    # Humana): o engine falhou para esta foto específica (ex.: imagem ilegível).
+    # O registro é preservado e o lote segue (Figma Sprint 3: "Registro preservado").
+    ERROR = "erro"
 
 
 @dataclass

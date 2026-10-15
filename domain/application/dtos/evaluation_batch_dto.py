@@ -1,16 +1,10 @@
-"""
-DTOs de request/response para os use cases de EvaluationBatch (UC04–UC05).
-
-São contratos de entrada/saída — não têm comportamento. Mantêm os use
-cases desacoplados do formato exato de request usado na camada de API
-(FastAPI/multipart, se for essa a escolha do front de acesso).
-"""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
 
+from domain.entities.evaluated_photo import PhotoEvaluationStatus
 from domain.entities.evaluation_batch import BatchStatus, ClassificationRoute
 
 # ---------------------------------------------------------------------------
@@ -59,3 +53,46 @@ class ClassifyAnchorResponse:
     status: BatchStatus
     classified_anchor: str | None
     classification_route: ClassificationRoute | None
+
+
+# ---------------------------------------------------------------------------
+# UC06 — Avaliar Fotografias (Photus A)
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class EvaluatePhotosRequest:
+    batch_id: str
+
+
+@dataclass(frozen=True)
+class EvaluatePhotosResponse:
+    batch_id: str
+    status: BatchStatus
+    evaluated_photos: int  # fotos que receberam um status do engine (inclui `erro` por foto)
+    thresholds_file: str | None
+
+
+@dataclass(frozen=True)
+class EvaluatedPhotoDetail:
+    id: str
+    file_name: str
+    evaluation_status: PhotoEvaluationStatus
+    final_score: float | None
+    metrics_json: dict | None  # payload estruturado (RF10); `metrics_json` no banco é Text
+    is_top3: bool
+
+
+@dataclass(frozen=True)
+class BatchDetailResponse:
+    id: str
+    user_id: str
+    input_text: str
+    status: BatchStatus
+    classified_anchor: str | None
+    classification_route: ClassificationRoute | None
+    created_at: datetime
+    thresholds_file: str | None
+    total_photos: int
+    evaluated_photos: int
+    photos: list[EvaluatedPhotoDetail]

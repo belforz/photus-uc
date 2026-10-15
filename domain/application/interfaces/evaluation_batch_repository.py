@@ -1,10 +1,3 @@
-"""
-Port de persistência para EvaluationBatch e EvaluatedPhoto.
-
-A implementação concreta (ex.: SQLAlchemy) vive em infra/ e é injetada
-nos use cases — os use cases nunca importam uma implementação
-concreta diretamente.
-"""
 
 from __future__ import annotations
 
@@ -29,5 +22,16 @@ class EvaluationBatchRepository(ABC):
 
     @abstractmethod
     def update_classification(self, batch: EvaluationBatch) -> EvaluationBatch:
-        """Persiste status/classified_anchor/classification_route (UC05)."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def list_photos(self, batch_id: str) -> list[EvaluatedPhoto]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def update_photo_evaluations(self, photos: list[EvaluatedPhoto]) -> list[EvaluatedPhoto]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def update_status(self, batch: EvaluationBatch) -> EvaluationBatch:
         raise NotImplementedError

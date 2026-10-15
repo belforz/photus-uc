@@ -1,11 +1,3 @@
-"""
-Port de hashing de senha.
-
-Decisão já tomada (fora deste esqueleto): implementação concreta em
-infra/security/ usando passlib + bcrypt
-(ex.: `passlib.context.CryptContext(schemes=["bcrypt"])`).
-Este arquivo define só o contrato que o use case depende.
-"""
 
 from __future__ import annotations
 

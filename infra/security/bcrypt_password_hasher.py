@@ -1,10 +1,3 @@
-"""
-Adapter de PasswordHasher usando bcrypt diretamente (RNF08).
-
-Usa a lib `bcrypt` em vez de passlib: passlib está sem manutenção
-desde 2020 e é incompatível com bcrypt>=4.1 (perdeu o atributo
-`__about__` que passlib lia para detectar a versão do backend).
-"""
 
 from __future__ import annotations
 
