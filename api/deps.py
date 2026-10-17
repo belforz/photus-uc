@@ -12,7 +12,10 @@ from domain.application.use_cases.atualizar_perfil import AtualizarPerfil
 from domain.application.use_cases.autenticar_usuario import AutenticarUsuario
 from domain.application.use_cases.cadastrar_usuario import CadastrarUsuario
 from domain.application.use_cases.classify_semantic_anchor import ClassifySemanticAnchor
+from domain.application.use_cases.delete_evaluation_batch import DeleteEvaluationBatch
+from domain.application.use_cases.get_batch_photo_file import GetBatchPhotoFile
 from domain.application.use_cases.get_evaluation_batch import GetEvaluationBatch
+from domain.application.use_cases.list_evaluation_batches import ListEvaluationBatches
 from domain.application.use_cases.submit_evaluation_batch import SubmitEvaluationBatch
 from infra.clients.http_photus_b_client import HttpPhotusBClient
 from infra.config import Settings, get_settings
@@ -114,6 +117,31 @@ def get_get_evaluation_batch_use_case(
     ],
 ) -> GetEvaluationBatch:
     return GetEvaluationBatch(repo)
+
+
+def get_list_evaluation_batches_use_case(
+    repo: Annotated[
+        SQLAlchemyEvaluationBatchRepository, Depends(get_evaluation_batch_repository)
+    ],
+) -> ListEvaluationBatches:
+    return ListEvaluationBatches(repo)
+
+
+def get_delete_evaluation_batch_use_case(
+    repo: Annotated[
+        SQLAlchemyEvaluationBatchRepository, Depends(get_evaluation_batch_repository)
+    ],
+    storage: Annotated[FilesystemPhotoStorage, Depends(get_photo_storage)],
+) -> DeleteEvaluationBatch:
+    return DeleteEvaluationBatch(repo, storage)
+
+
+def get_get_batch_photo_file_use_case(
+    repo: Annotated[
+        SQLAlchemyEvaluationBatchRepository, Depends(get_evaluation_batch_repository)
+    ],
+) -> GetBatchPhotoFile:
+    return GetBatchPhotoFile(repo)
 
 
 def get_evaluation_job() -> EvaluationJob:

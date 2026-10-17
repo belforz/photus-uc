@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from domain.application.interfaces.evaluation_batch_repository import (
@@ -94,6 +95,37 @@ class SQLAlchemyEvaluationBatchRepository(EvaluationBatchRepository):
         self._session.commit()
         self._session.refresh(model)
         return _to_entity(model)
+
+    def list_by_user(self, user_id: str) -> list[EvaluationBatch]:
+        models = (
+            self._session.query(EvaluationBatchModel)
+            .filter(EvaluationBatchModel.user_id == user_id)
+            .order_by(EvaluationBatchModel.created_at.desc())
+            .all()
+        )
+        return [_to_entity(model) for model in models]
+
+    def count_photos(self, batch_ids: list[str]) -> dict[str, int]:
+        if not batch_ids:
+            return {}
+        rows = (
+            self._session.query(EvaluatedPhotoModel.batch_id, func.count(EvaluatedPhotoModel.id))
+            .filter(EvaluatedPhotoModel.batch_id.in_(batch_ids))
+            .group_by(EvaluatedPhotoModel.batch_id)
+            .all()
+        )
+        return {batch_id: count for batch_id, count in rows}
+
+    def delete(self, batch_id: str) -> None:
+        # Cascata explícita: o `ON DELETE CASCADE` da FK só vale no SQLite com
+        # `PRAGMA foreign_keys=ON`, então não dependemos dele.
+        self._session.query(EvaluatedPhotoModel).filter(
+            EvaluatedPhotoModel.batch_id == batch_id
+        ).delete(synchronize_session=False)
+        self._session.query(EvaluationBatchModel).filter(
+            EvaluationBatchModel.id == batch_id
+        ).delete(synchronize_session=False)
+        self._session.commit()
 
 
 def _to_entity(model: EvaluationBatchModel) -> EvaluationBatch:

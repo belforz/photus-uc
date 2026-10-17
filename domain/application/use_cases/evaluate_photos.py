@@ -21,6 +21,7 @@ from domain.application.interfaces.photo_evaluation_pipeline import (
     PhotoEvaluationResult,
     PhotoToEvaluate,
 )
+from domain.application.services.phrase_number import is_singular
 from domain.entities.evaluated_photo import EvaluatedPhoto, PhotoEvaluationStatus
 from domain.entities.evaluation_batch import BatchStatus
 
@@ -77,6 +78,7 @@ class EvaluatePhotos:
             anchor=batch.classified_anchor,
             thresholds_source=outcome.thresholds_source,
         )
+        avaliadas = mark_top3(avaliadas, batch.input_text)
         self._batch_repository.update_photo_evaluations(avaliadas)
         batch.status = BatchStatus.COMPLETED
         self._batch_repository.update_status(batch)
@@ -87,6 +89,31 @@ class EvaluatePhotos:
             evaluated_photos=len(avaliadas),
             thresholds_file=outcome.thresholds_file,
         )
+
+
+TOP_N = 3
+
+
+def mark_top3(photos: list[EvaluatedPhoto], input_text: str) -> list[EvaluatedPhoto]:
+    """UC09 / RF11 — marca `is_top3` nas até 3 fotos APROVADAS de maior score.
+
+    Só vale para frases no singular ("a melhor foto..."); no plural nenhuma foto
+    é marcada e o front exibe a galeria completa. Com menos de 3 aprovadas,
+    marca só as disponíveis (A1). Empates no score desempatam pelo nome do arquivo.
+    """
+    if not is_singular(input_text):
+        return [replace(p, is_top3=False) for p in photos]
+    ranked = sorted(
+        (
+            p
+            for p in photos
+            if p.evaluation_status == PhotoEvaluationStatus.APPROVED
+            and p.final_score is not None
+        ),
+        key=lambda p: (-p.final_score, p.file_name),
+    )
+    chosen = {p.id for p in ranked[:TOP_N]}
+    return [replace(p, is_top3=p.id in chosen) for p in photos]
 
 
 def _apply_results(

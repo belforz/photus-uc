@@ -4,9 +4,11 @@ from fastapi.responses import JSONResponse
 from api.routers.evaluation_batch import router as evaluation_batch_router
 from api.routers.usuario import router as usuario_router
 from domain.application.exceptions.evaluation_batch_exceptions import (
+    BatchAccessDeniedError,
     BatchNotFoundError,
     NoPhotosAttachedError,
     PhotoLimitExceededError,
+    PhotoNotFoundError,
 )
 from domain.application.exceptions.usuario_exceptions import (
     CredenciaisInvalidasError,
@@ -54,6 +56,19 @@ def _photo_limit_exceeded(request: Request, exc: PhotoLimitExceededError) -> JSO
 @app.exception_handler(BatchNotFoundError)
 def _batch_not_found(request: Request, exc: BatchNotFoundError) -> JSONResponse:
     return JSONResponse(status_code=404, content={"detail": "Lote não encontrado"})
+
+
+@app.exception_handler(BatchAccessDeniedError)
+def _batch_access_denied(request: Request, exc: BatchAccessDeniedError) -> JSONResponse:
+    return JSONResponse(
+        status_code=403,
+        content={"detail": "Acesso negado. Você não tem permissão para acessar este lote."},
+    )
+
+
+@app.exception_handler(PhotoNotFoundError)
+def _photo_not_found(request: Request, exc: PhotoNotFoundError) -> JSONResponse:
+    return JSONResponse(status_code=404, content={"detail": "Fotografia não encontrada"})
 
 
 @app.get("/health")

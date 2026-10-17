@@ -37,3 +37,11 @@ class EvaluationEngineError(EvaluationBatchError):
 
 class PhotusBUnavailableError(EvaluationBatchError):
     pass
+
+
+class BatchAccessDeniedError(EvaluationBatchError):
+    """RF14 — o lote existe, mas pertence a outro usuário."""
+
+
+class PhotoNotFoundError(EvaluationBatchError):
+    pass

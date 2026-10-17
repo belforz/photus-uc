@@ -149,7 +149,7 @@ def test_uc05_com_photus_b_fora_nao_dispara_avaliacao_tecnica(client: TestClient
     assert pipeline.calls == []  # pré-condição do UC06: sem âncora, sem avaliação
 
 
-def test_get_lote_de_outro_usuario_retorna_404(client: TestClient) -> None:
+def test_get_lote_de_outro_usuario_retorna_403(client: TestClient) -> None:
     _use_pipeline(client, FakePhotoEvaluationPipeline(outcome=_ok_outcome(1)))
     dono = _headers(client, "dono@teste.com")
     outro = _headers(client, "outro@teste.com")
@@ -159,7 +159,8 @@ def test_get_lote_de_outro_usuario_retorna_404(client: TestClient) -> None:
 
     resposta = client.get(f"/batches/{criado.json()['id']}", headers=outro)
 
-    assert resposta.status_code == 404
+    # Sprint 4 / RF14: existe mas é de outro usuário => 403 (inexistente segue 404).
+    assert resposta.status_code == 403
 
 
 def test_get_lote_inexistente_retorna_404(client: TestClient) -> None:

@@ -7,10 +7,11 @@ from domain.application.dtos.evaluation_batch_dto import (
     BatchDetailResponse,
     EvaluatedPhotoDetail,
 )
-from domain.application.exceptions.evaluation_batch_exceptions import BatchNotFoundError
 from domain.application.interfaces.evaluation_batch_repository import (
     EvaluationBatchRepository,
 )
+from domain.application.services.batch_access import load_owned_batch
+from domain.application.services.phrase_number import is_singular
 from domain.entities.evaluated_photo import PhotoEvaluationStatus
 
 
@@ -19,9 +20,7 @@ class GetEvaluationBatch:
         self._batch_repository = batch_repository
 
     def execute(self, batch_id: str, user_id: str) -> BatchDetailResponse:
-        batch = self._batch_repository.get_by_id(batch_id)
-        if batch is None or batch.user_id != user_id:
-            raise BatchNotFoundError(batch_id)
+        batch = load_owned_batch(self._batch_repository, batch_id, user_id)
 
         photos = self._batch_repository.list_photos(batch.id)
         details = [
@@ -56,5 +55,6 @@ class GetEvaluationBatch:
             evaluated_photos=sum(
                 1 for d in details if d.evaluation_status != PhotoEvaluationStatus.PENDING
             ),
+            is_singular=is_singular(batch.input_text),
             photos=details,
         )

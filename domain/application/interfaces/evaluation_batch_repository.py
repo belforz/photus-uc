@@ -35,3 +35,17 @@ class EvaluationBatchRepository(ABC):
     @abstractmethod
     def update_status(self, batch: EvaluationBatch) -> EvaluationBatch:
         raise NotImplementedError
+
+    @abstractmethod
+    def list_by_user(self, user_id: str) -> list[EvaluationBatch]:
+        """Lotes do usuário, do mais recente para o mais antigo (UC07)."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def count_photos(self, batch_ids: list[str]) -> dict[str, int]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def delete(self, batch_id: str) -> None:
+        """Remove o lote e, em cascata, suas fotos avaliadas (UC10 / RF13)."""
+        raise NotImplementedError

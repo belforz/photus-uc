@@ -34,4 +34,19 @@ class BatchDetailPublic(BatchPublic):
     thresholds_file: str | None
     total_photos: int
     evaluated_photos: int
+    # UC09: frase original no singular => o front destaca as fotos `is_top3`.
+    is_singular: bool
     photos: list[EvaluatedPhotoPublic]
+
+
+class BatchSummaryPublic(BaseModel):
+    """Item do histórico (UC07)."""
+
+    id: str
+    input_text: str
+    status: BatchStatus
+    classified_anchor: str | None
+    classification_route: ClassificationRoute | None
+    created_at: datetime
+    total_photos: int
+    is_singular: bool

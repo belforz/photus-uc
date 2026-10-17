@@ -95,4 +95,29 @@ class BatchDetailResponse:
     thresholds_file: str | None
     total_photos: int
     evaluated_photos: int
+    # UC09 — a frase original está no singular? (o front só destaca o Top 3 se sim)
+    is_singular: bool
     photos: list[EvaluatedPhotoDetail]
+
+
+# ---------------------------------------------------------------------------
+# UC07 — Consultar Histórico / UC10 — Excluir Lote / foto do lote
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class BatchSummary:
+    id: str
+    input_text: str
+    status: BatchStatus
+    classified_anchor: str | None
+    classification_route: ClassificationRoute | None
+    created_at: datetime
+    total_photos: int
+    is_singular: bool
+
+
+@dataclass(frozen=True)
+class BatchPhotoFile:
+    file_name: str
+    file_path: str

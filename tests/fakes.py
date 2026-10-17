@@ -93,6 +93,17 @@ class FakeEvaluationBatchRepository(EvaluationBatchRepository):
         self._batches[batch.id] = batch
         return batch
 
+    def list_by_user(self, user_id: str) -> list[EvaluationBatch]:
+        mine = [b for b in self._batches.values() if b.user_id == user_id]
+        return sorted(mine, key=lambda b: b.created_at, reverse=True)
+
+    def count_photos(self, batch_ids: list[str]) -> dict[str, int]:
+        return {bid: len(self._photos.get(bid, [])) for bid in batch_ids}
+
+    def delete(self, batch_id: str) -> None:
+        self._batches.pop(batch_id, None)
+        self._photos.pop(batch_id, None)
+
 
 class FakePhotoEvaluationPipeline(PhotoEvaluationPipeline):
 
@@ -118,10 +129,14 @@ class FakePhotoEvaluationPipeline(PhotoEvaluationPipeline):
 class FakePhotoStorage(PhotoStorage):
     def __init__(self) -> None:
         self.saved: list[tuple[str, str, bytes]] = []
+        self.deleted_batches: list[str] = []
 
     def save(self, batch_id: str, file_name: str, content: bytes) -> str:
         self.saved.append((batch_id, file_name, content))
         return f"/fake/{batch_id}/{file_name}"
+
+    def delete_batch(self, batch_id: str) -> None:
+        self.deleted_batches.append(batch_id)
 
 
 class FakePhotusBClient(PhotusBClient):
