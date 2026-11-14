@@ -8,6 +8,7 @@ import jwt
 
 from domain.application.exceptions.token_exceptions import TokenInvalidoError
 from domain.application.interfaces.token_service import TokenService
+CLOCK_SKEW_LEEWAY_SECONDS = 10
 
 
 class JwtTokenService(TokenService):
@@ -32,7 +33,12 @@ class JwtTokenService(TokenService):
 
     def decode(self, token: str) -> dict[str, Any]:
         try:
-            payload = jwt.decode(token, self._secret, algorithms=[self._algorithm])
+            payload = jwt.decode(
+                token,
+                self._secret,
+                algorithms=[self._algorithm],
+                leeway=CLOCK_SKEW_LEEWAY_SECONDS,
+            )
         except jwt.PyJWTError as exc:
             raise TokenInvalidoError(str(exc)) from exc
         return {"usuario_id": payload["sub"]}
