@@ -26,6 +26,7 @@ ENV/
 
 # Fotografias enviadas (Sprint 2 — armazenamento local em disco)
 /uploads/
+/uploads_doc/
 
 # IDEs and Editors
 .vscode/
